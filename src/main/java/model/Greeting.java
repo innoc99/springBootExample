@@ -1,4 +1,4 @@
-package com.daumkakao.localcontents.test.websupport.model;
+package model;
 
 /**
  * Created by innoc on 15. 8. 29..
