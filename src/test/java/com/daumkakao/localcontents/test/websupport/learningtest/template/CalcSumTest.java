@@ -1,12 +1,7 @@
 package com.daumkakao.localcontents.test.websupport.learningtest.template;
 
-import com.daumkakao.localcontents.test.websupport.application.Application;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
 
@@ -25,7 +20,7 @@ public class CalcSumTest {
     @Before
     public void setup(){
         this.calculator = new Calculator();
-        this.filepath = "/Develope/workspace/springBootExample/src/main/java/numbers.txt";
+        this.filepath = "/Develope/privateWork/springBootExample/src/main/java/numbers.txt";
     }
 
     @Test
