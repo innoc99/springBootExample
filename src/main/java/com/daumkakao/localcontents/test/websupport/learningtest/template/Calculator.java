@@ -9,7 +9,7 @@ import java.io.IOException;
  */
 public class Calculator {
     public Integer fileReadTemplate(String filepath, BufferedReaderCallback callback) throws IOException {
-        Integer sum = 0;
+        Integer sum;
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(filepath));

@@ -3,12 +3,23 @@ package model;
 import com.google.common.base.MoreObjects;
 
 /**
+ * 사용자 정보
+ *
  * Created by illy on 2015. 10. 25..
  */
 public class User {
     String id;
     String name;
     String password;
+
+    public User() {
+    }
+
+    public User(String id, String name, String password) {
+        this.id = id;
+        this.name = name;
+        this.password = password;
+    }
 
     public String getId() {
         return id;
