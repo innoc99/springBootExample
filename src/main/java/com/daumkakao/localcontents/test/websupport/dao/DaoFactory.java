@@ -29,4 +29,10 @@ public class DaoFactory {
         dataSource.setPassword("fhemqb21");
         return dataSource;
     }
+
+    @Bean
+    JdbcContext jdbcContext(){
+        JdbcContext jdbcContext = new JdbcContext();
+        return jdbcContext;
+    }
 }

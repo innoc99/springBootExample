@@ -1,10 +1,17 @@
 package com.daumkakao.localcontents.test.websupport.dao;
 
 import model.User;
+import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -14,18 +21,30 @@ import static org.junit.Assert.assertThat;
  * UserDao 테스트 JUnit
  * Created by illy on 2016. 1. 4..
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = DaoFactory.class)
+@DirtiesContext
 public class UserDaoTest {
+
+    @Autowired
+    private UserDao dao;
+    private User user1;
+    private User user2;
+    private User user3;
+
+    @Before
+    public void setUp(){
+        DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost/test", "root", "fhemqb21", true);
+        dao.setDataSource(dataSource);
+        this.user1 = new User("innoc", "김", "123");
+        this.user2 = new User("innoc2", "김2", "1234");
+        this.user3 = new User("innoc3", "김3", "1235");
+    }
 
     @Test
     public void addAndGet() throws SQLException, ClassNotFoundException {
-
-        UserDao dao = getUserDao();
-
         dao.deleteAll();
         assertThat(dao.getCount(), is(0));
-
-        User user1 = new User("innoc", "김", "123");
-        User user2 = new User("innoc2", "김2", "1234");
 
         dao.add(user1);
         User userget1 = dao.get(user1.getId());
@@ -40,10 +59,6 @@ public class UserDaoTest {
 
     @Test
     public void count() throws SQLException, ClassNotFoundException {
-        UserDao dao = getUserDao();
-        User user1 = new User("innoc", "김", "123");
-        User user2 = new User("innoc2", "김2", "1234");
-        User user3 = new User("innoc3", "김3", "1235");
         dao.deleteAll();
         assertThat(dao.getCount(), is(0));
         dao.add(user1);
@@ -54,8 +69,11 @@ public class UserDaoTest {
         assertThat(dao.getCount(), is(3));
     }
 
-    public static UserDao getUserDao() {
-        ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
-        return context.getBean(UserDao.class);
+    @Test(expected = EmptyResultDataAccessException.class)
+    public void getUserFailure() throws Exception {
+        dao.deleteAll();
+        assertThat(dao.getCount(), is(0));
+
+        dao.get("unknown_id");
     }
 }
