@@ -1,2 +1,4 @@
 # springBootExample
-- springBoot Sample 프로젝트
+ * SpringBoot sample
+ * Toby's Spring sample
+ * etc sample test

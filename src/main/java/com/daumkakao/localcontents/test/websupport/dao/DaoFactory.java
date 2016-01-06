@@ -1,6 +1,7 @@
 package com.daumkakao.localcontents.test.websupport.dao;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -12,6 +13,7 @@ import javax.sql.DataSource;
  * Created by illy on 2016. 1. 4..
  */
 @Configuration
+@ComponentScan("com.daumkakao.localcontents.test.websupport.service")
 public class DaoFactory {
 
     @Bean
