@@ -4,8 +4,13 @@ import com.daumkakao.localcontents.test.websupport.dao.UserDao;
 import model.Level;
 import model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 /**
@@ -17,19 +22,36 @@ public class UserService {
     public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
     public static final int MIN_RECOMMEND_FOR_GOLD = 30;
 
-    @Autowired
+
     UserDao userDao;
 
-    public void upgradeLevels(){
-        List<User> users = userDao.getAll();
-        for (User user : users) {
-            if(canUpgradeLevel(user)){
-                upgradeLevel(user);
-            }
+    DataSource dataSource;
+
+    @Autowired
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    @Autowired
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    public void upgradeLevels() {
+
+        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
+        TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+        try {
+            List<User> users = userDao.getAll();
+            users.stream().filter(this::canUpgradeLevel).forEach(this::upgradeLevel);
+            transactionManager.commit(status);
+        } catch (RuntimeException e) {
+            transactionManager.rollback(status);
+            throw e;
         }
     }
 
-    private void upgradeLevel(User user) {
+    protected void upgradeLevel(User user) {
         user.upgradeLevel();
         userDao.update(user);
     }
