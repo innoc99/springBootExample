@@ -30,6 +30,9 @@ public class User {
         this.password = password;
     }
 
+    public User() {
+    }
+
     public String getId() {
         return id;
     }
@@ -91,5 +94,14 @@ public class User {
     }
 
     public static void main(String[] args){
+    }
+
+    public void upgradeLevel() {
+        Level nextLevel = this.level.nextLevel();
+        if(nextLevel == null){
+            throw new IllegalStateException(this.level + "은 업그레이드가 불가합니다");
+        }else{
+            level = nextLevel;
+        }
     }
 }
