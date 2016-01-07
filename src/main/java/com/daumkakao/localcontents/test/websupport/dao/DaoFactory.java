@@ -4,7 +4,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -15,6 +17,11 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan("com.daumkakao.localcontents.test.websupport.service")
 public class DaoFactory {
+
+    @Bean
+    public PlatformTransactionManager transactionManager(){
+        return new DataSourceTransactionManager(dataSource());
+    }
 
     @Bean
     public UserDaoJdbc userDao() {

@@ -8,16 +8,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.daumkakao.localcontents.test.websupport.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
-import static com.daumkakao.localcontents.test.websupport.service.UserService.MIN_RECOMMEND_FOR_GOLD;
+import static com.daumkakao.localcontents.test.websupport.service.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
+import static com.daumkakao.localcontents.test.websupport.service.UserServiceImpl.MIN_RECOMMEND_FOR_GOLD;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -31,13 +31,11 @@ import static org.junit.Assert.fail;
 @ContextConfiguration(classes = DaoFactory.class)
 public class UserServiceTest {
 
-    @Autowired
-    DataSource dataSource;
 
     static class TestUserServiceException extends RuntimeException {
     }
 
-    static class TestUserService extends UserService {
+    static class TestUserService extends UserServiceImpl {
         private String id;
 
         public TestUserService(String id) {
@@ -51,7 +49,11 @@ public class UserServiceTest {
     }
 
     @Autowired
+    @Qualifier("userServiceTx")
     private UserService userService;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     @Autowired
     private UserDao userDao;
@@ -75,7 +77,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeLevels() throws Exception {
+    public void upgradeLevels() {
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
@@ -120,17 +122,21 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeAllOrNothing() throws SQLException {
-        UserService testUserService = new TestUserService(users.get(3).getId());
+    public void upgradeAllOrNothing() {
+        TestUserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao);
-        testUserService.setDataSource(this.dataSource);
+
+        UserServiceTx txUserService = new UserServiceTx();
+        txUserService.setTransactionManager(transactionManager);
+        txUserService.setUserService(testUserService);
+
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
         }
 
         try {
-            testUserService.upgradeLevels();
+            txUserService.upgradeLevels();
             fail("Test UserServiceException expected");
         } catch (TestUserServiceException e) {
         }
